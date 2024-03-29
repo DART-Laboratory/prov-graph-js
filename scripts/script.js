@@ -137,8 +137,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let parentSource = parentData[0]["_source"];
             
             parent = {
-                name: parentSource["_id"], // This should be replaced with actual logic to determine a parent
-                process_pid: parentData[0]["_id"],
+                name: parentData[0]["_id"], 
+                process_pid: parentSource["process_pid"],
                 process_guid: parentSource["process_guid"],
                 parent_guid: parentSource["parent_guid"],
                 parent_pid: parentSource["parent_pid"],
@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 type: parentSource["action"],
                 children: [],
             };
+            console.log(parentData[0]["_id"])
             d.data.parent = parent                   
         } else {
             // If the node already has a parent, you might want to log a message or handle it differently

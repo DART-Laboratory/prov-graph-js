@@ -160,7 +160,7 @@ app.get('/search_child_process_by_guid', async (req, res) => {
 // Query to search for the parent process of the current process using the current process' parent_guid
 app.get('/search_parent_process_by_guid', async (req, res) => {
     try {
-        const { guid } = req.query;
+        const { guid, pid, path, child_guid} = req.query;
         const executedQuery = {
             index: dbConfig.name,
             body: {
@@ -174,7 +174,17 @@ app.get('/search_parent_process_by_guid', async (req, res) => {
                             },
                             {
                                 match: {
-                                    action: dbConfig.process.create
+                                    process_pid: pid
+                                }
+                            },
+                            {
+                                match: {
+                                    process_path: path
+                                }
+                            },
+                            {
+                                match: {
+                                    childproc_guid: child_guid
                                 }
                             }
                         ]

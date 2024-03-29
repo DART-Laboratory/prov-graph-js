@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
     async function performsSearchChildProcess(input) {
         return await searchChildProcess(input);
     }
-    async function performsSearchParentProcess(input) {
-        return await searchParentProcess(input);
+    async function performsSearchParentProcess(guid, pid, path, child_guid) {
+        return await searchParentProcess(guid, pid, path, child_guid);
     }
 
     searchButton.addEventListener('click', function() {
@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 "name": edge["_id"],
                 "process_pid": source["process_pid"],
                 "process_guid": source["process_guid"],
+                "parent_guid": source["parent_guid"],
+                "parent_pid": source["parent_pid"],
+                "parent_path": source["parent_path"],
+                "childproc_guid": source["childproc_guid"],
                 "type": source["action"],
                 "children": [],
                 "_children": [],
@@ -93,53 +97,69 @@ document.addEventListener('DOMContentLoaded', function () {
             d.data.children = d.data._children || [];
             d.data._children = null;
             if (!d.data.children.length) { // Only fetch if there are no children loaded yet
-                let childrenData = await performsSearchChildProcess(d.data.process_guid);
+                // console.log("child guid: "+ d.data.childproc_guid);
+                let childrenData = await performsSearchChildProcess(d.data.childproc_guid);
 
-                let childrenToAdd = [];
-                const realArray = Object.values(childrenData); // Convert to array
+                let childrenToAdd = [];                
                 for (let i=0; i<childrenData.length; i++) {
-                    let child = childrenData[i]
+                    let child = childrenData[i]                    
                     let childSource = child["_source"];
                     childrenToAdd.push({
                         name: child["_id"],
                         process_pid: childSource["process_pid"],
                         process_guid: childSource["process_guid"],
+                        parent_guid: childSource["parent_guid"],
+                        parent_pid: childSource["parent_pid"],
+                        parent_path: childSource["parent_path"],
+                        childproc_guid: childSource["childproc_guid"],
                         type: childSource["action"],
                         children: [],
+                        parent: ""
                     });
+                    console.log("Childrentoadd arr: "+ childrenToAdd[0]);
                 }
                 d.data.children = childrenToAdd
             }
-        }
-        console.log(dataForTree)
+        }        
         update(dataForTree);
     }
     async function toggleParent(d) {
         // First, check if the node is the root or treated as such in the visualization
         if (!d.data.parent || d === dataForTree) {
-            let parentData = await performsSearchParentProcess(d.data.process_guid)
-            console.log(parentData)
-            let randomParent = parentData[Math.floor(Math.random() * 10)]
-            let randomParentSource = randomParent["_source"]
-            dataForTree = {
-                name: randomParent["_id"], // This should be replaced with actual logic to determine a parent
-                process_pid: randomParentSource["process_pid"],
-                process_guid: randomParentSource["process_guid"],
-                type: randomParentSource["action"],
-                children: [dataForTree],
+            // console.log(d);
+            // console.log("PROCESS_GUID " + d.data.process_guid);
+            // console.log("PARENT_GUID " + d.data.parent_guid);
+            // console.log("PARENT_PID " + d.data.parent_pid);
+            // console.log("PARENT_PATH " + d.data.parent_path);
+            // console.log("PROCESS_PID " + d.data.process_pid);
+
+            let parentData = await performsSearchParentProcess(d.data.parent_guid, d.data.parent_pid, d.data.parent_path, d.data.process_guid)                                    
+            let parentSource = parentData[0]["_source"];
+            
+            parent = {
+                name: parentSource["_id"], // This should be replaced with actual logic to determine a parent
+                process_pid: parentData[0]["_id"],
+                process_guid: parentSource["process_guid"],
+                parent_guid: parentSource["parent_guid"],
+                parent_pid: parentSource["parent_pid"],
+                parent_path: parentSource["parent_path"],
+                childproc_guid: parentSource["childproc_guid"],
+                type: parentSource["action"],
+                children: [],
             };
-            update(dataForTree);
+            d.data.parent = parent                   
         } else {
             // If the node already has a parent, you might want to log a message or handle it differently
             console.log("Node already has a parent.");
         }
+        update(dataForTree);
     }
 
     function nodeClick(event, d) {
         const reverse = checkbox.checked
         if(reverse){
-            toggleParent(d)
-        }else{
+            toggleParent(d);
+        }else{            
             toggleChildren(d);
         }
 

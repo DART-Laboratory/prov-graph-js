@@ -115,10 +115,25 @@ export async function searchChildProcess(guid) {
     }
 }
 
-export async function searchParentProcess(guid) {
+export async function searchParentProcess(guid, pid, path, child_guid) {
     try {
-        const response = await fetch(`http://localhost:${PORT}/search_parent_process_by_guid?guid=${encodeURIComponent(guid)}`);
-        return await response.json();
+        const queryParams = new URLSearchParams({
+            guid: encodeURIComponent(guid),
+            pid: encodeURIComponent(pid),
+            path: encodeURIComponent(path),
+            child_guid: encodeURIComponent(child_guid) 
+        }).toString();
+        
+        const url = `http://localhost:${PORT}/search_parent_process_by_guid?${queryParams}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data) {
+            return data;
+        } else {
+            console.log('No data found');
+            return null;
+        }
     } catch (error) {
         console.error('Error:', error);
         return null;

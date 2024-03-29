@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return await search(input);
     }
 
-    async function performsSearchChildProcess(input) {
-        return await searchChildProcess(input);
+    async function performsSearchChildProcess(guid, pid) {
+        return await searchChildProcess(guid, pid);
     }
     async function performsSearchParentProcess(guid, pid, path, child_guid) {
         return await searchParentProcess(guid, pid, path, child_guid);
@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 "parent_pid": source["parent_pid"],
                 "parent_path": source["parent_path"],
                 "childproc_guid": source["childproc_guid"],
+                "childproc_pid": source["childproc_pid"],
                 "type": source["action"],
                 "children": [],
                 "_children": [],
@@ -90,16 +91,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d) {
-        if (d.data.children) {//if the node already has children
+        if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;
         } else {
-            d.data.children = d.data._children || [];
+            d.data.children = d.data._children || [];            
             d.data._children = null;
             if (!d.data.children.length) { // Only fetch if there are no children loaded yet
                 // console.log("child guid: "+ d.data.childproc_guid);
-                let childrenData = await performsSearchChildProcess(d.data.childproc_guid);
-
+                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid);
+                // console.log(childrenData)
                 let childrenToAdd = [];                
                 for (let i=0; i<childrenData.length; i++) {
                     let child = childrenData[i]                    
@@ -112,8 +113,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         parent_pid: childSource["parent_pid"],
                         parent_path: childSource["parent_path"],
                         childproc_guid: childSource["childproc_guid"],
+                        childproc_pid: childSource["childproc_pid"],
                         type: childSource["action"],
                         children: [],
+                        _children: [],
                         parent: ""
                     });
                     console.log("Childrentoadd arr: "+ childrenToAdd[0]);
@@ -144,16 +147,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 parent_pid: parentSource["parent_pid"],
                 parent_path: parentSource["parent_path"],
                 childproc_guid: parentSource["childproc_guid"],
+                childproc_pid: parentSource["childproc_pid"],
                 type: parentSource["action"],
                 children: [],
+                _children: [],
+                parent: ""
             };
             console.log(parentData[0]["_id"])
-            d.data.parent = parent                   
+            parent.children.push(d);
+            d.data.parent = parent;            
         } else {
             // If the node already has a parent, you might want to log a message or handle it differently
             console.log("Node already has a parent.");
         }
-        update(dataForTree);
+        update(parent);
     }
 
     function nodeClick(event, d) {

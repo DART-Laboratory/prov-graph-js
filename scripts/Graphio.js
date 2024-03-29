@@ -100,9 +100,16 @@ export function searchProcessPID(pid) {
     catch(error => console.error('Error:', error));
 }
 
-export async function searchChildProcess(guid) {
+export async function searchChildProcess(guid, pid) {
     try {
-        const response = await fetch(`http://localhost:${PORT}/search_child_process_by_guid?guid=${encodeURIComponent(guid)}`);
+        const queryParams = new URLSearchParams({
+            guid: encodeURIComponent(guid),
+            pid: encodeURIComponent(pid)            
+        }).toString();
+
+        const url = `http://localhost:${PORT}/search_child_process_by_guid?${queryParams}`;
+
+        const response = await fetch(url);
         const data = await response.json();
         if (data) {
             return data;

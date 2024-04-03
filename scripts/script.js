@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         performSearch(inputValue).then(edge => {
             let source = edge["_source"];
             let data = {
-                "name": edge["_id"],
+                "name": source["process_path"],
                 "process_pid": source["process_pid"],
                 "process_guid": source["process_guid"],
                 "parent_guid": source["parent_guid"],
@@ -35,8 +35,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 "_children": [],
                 "parent": "",
             };
-            dataForTree = data
-            update(dataForTree);
+            console.log(data);
+            console.log(data.parent_guid);
+            toggleParent(data, false)
+            // dataForTree = data
+            // update(dataForTree);
         });
     });
 
@@ -91,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d) {
+        console.log(d)
         if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;
@@ -126,9 +130,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }        
         update(dataForTree);
     }
-    async function toggleParent(d) {
+    async function toggleParent(d, node = true) {
+        let parent_guid = "";
+        let parent_pid = "";
+        let parent_path = "";
+        let process_guid = "";
+        let parent = ""
+        let parentNode;
+        if (!node){
+            parent_guid = d.parent_guid;
+            parent_pid = d.parent_pid;
+            parent_path = d.parent_path;
+            process_guid = d.process_guid;
+            parent = d.parent;
+        }
+        else {
+            parent_guid = d.data.parent_guid;
+            parent_pid = d.data.parent_pid;
+            parent_path = d.data.parent_path;
+            process_guid = d.data.process_guid;
+            parent = d.data.parent;
+        }
+
         // First, check if the node is the root or treated as such in the visualization
-        if (!d.data.parent || d === dataForTree) {
+        if (!parent || d === dataForTree) {
             // console.log(d);
             // console.log("PROCESS_GUID " + d.data.process_guid);
             // console.log("PARENT_GUID " + d.data.parent_guid);
@@ -136,11 +161,11 @@ document.addEventListener('DOMContentLoaded', function () {
             // console.log("PARENT_PATH " + d.data.parent_path);
             // console.log("PROCESS_PID " + d.data.process_pid);
 
-            let parentData = await performsSearchParentProcess(d.data.parent_guid, d.data.parent_pid, d.data.parent_path, d.data.process_guid)                                    
-            let parentSource = parentData[0]["_source"];
+            let parentData = await performsSearchParentProcess(parent_guid, parent_pid, parent_path, process_guid)                 
+            let parentSource = parentData[0]["_source"];            
             
-            parent = {
-                name: parentData[0]["_id"], 
+            parentNode = {
+                name: parentSource["process_path"], 
                 process_pid: parentSource["process_pid"],
                 process_guid: parentSource["process_guid"],
                 parent_guid: parentSource["parent_guid"],
@@ -153,14 +178,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 _children: [],
                 parent: ""
             };
-            console.log(parentData[0]["_id"])
-            parent.children.push(d);
-            d.data.parent = parent;            
+            
+            console.log(parentNode)
+            parentNode.children.push(d);
+            if (!node){
+                d.parent = parentNode;
+                console.log(parentNode)
+            }
+            else{
+                d.data.parent = parentNode;            
+            }
         } else {
             // If the node already has a parent, you might want to log a message or handle it differently
             console.log("Node already has a parent.");
         }
-        update(parent);
+    
+        update(parentNode);
     }
 
     function nodeClick(event, d) {

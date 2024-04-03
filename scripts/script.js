@@ -188,12 +188,13 @@ document.addEventListener('DOMContentLoaded', function () {
             else{
                 d.data.parent = parentNode;            
             }
+            dataForTree = parentNode;
         } else {
             // If the node already has a parent, you might want to log a message or handle it differently
             console.log("Node already has a parent.");
         }
     
-        update(parentNode);
+        update(dataForTree);
     }
 
     function nodeClick(event, d) {

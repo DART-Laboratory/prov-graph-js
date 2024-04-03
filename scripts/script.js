@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     let child = childrenData[i]                    
                     let childSource = child["_source"];
                     childrenToAdd.push({
-                        name: child["_id"],
+                        name: childSource["process_path"],
                         process_pid: childSource["process_pid"],
                         process_guid: childSource["process_guid"],
                         parent_guid: childSource["parent_guid"],
@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
             
             parentNode = {
                 name: parentSource["process_path"], 
+                // name: parentData[0]["_id"],
                 process_pid: parentSource["process_pid"],
                 process_guid: parentSource["process_guid"],
                 parent_guid: parentSource["parent_guid"],

@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 "_children": [],
                 "parent": "",
             };
-            console.log(data);
-            console.log(data.parent_guid);
+            // console.log(data);
+            // console.log(data.parent_guid);
             toggleParent(data, false)
             // dataForTree = data
             // update(dataForTree);
@@ -179,14 +179,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 parent: ""
             };
             
-            console.log(parentNode)
-            parentNode.children.push(d);
             if (!node){
                 d.parent = parentNode;
                 console.log(parentNode)
+                parentNode.children.push(d);                   
             }
             else{
-                d.data.parent = parentNode;            
+                d.data.parent = parentNode; 
+                parentNode.children.push(dataForTree);
             }
             dataForTree = parentNode;
         } else {

@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return await search(input);
     }
 
-    async function performsSearchChildProcess(guid, pid) {
-        return await searchChildProcess(guid, pid);
+    async function performsSearchChildProcess(guid, pid, numChildren) {
+        return await searchChildProcess(guid, pid, numChildren);
     }
     async function performsSearchParentProcess(guid, pid, path, child_guid) {
         return await searchParentProcess(guid, pid, path, child_guid);
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d) {
-        let numChildrenToGet =  childrenAmountInput.value;
+            let numChildrenToGet =  parseInt(childrenAmountInput.value);
         if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;

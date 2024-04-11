@@ -1,7 +1,7 @@
 {
     "databases": [
       {
-        "name": "atlasv2-edr-h1-s4",
+        "name": "atlasv2-*",
         "idField": "_id",
         "actionField": "action",
         "process":

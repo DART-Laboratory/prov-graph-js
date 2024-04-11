@@ -16,7 +16,7 @@ app.get('/search', async (req, res) => {
     try {
         const { id } = req.query;
         const executedQuery = {
-            index: 'atlasv2-edr-h1-s4',
+            index: dbConfig.name,
             body: {
                 query: {
                     match: {
@@ -26,7 +26,7 @@ app.get('/search', async (req, res) => {
             }
         };
         var response = await client.search(executedQuery);
-        const data = response.hits.hits;        
+        const data = response.hits.hits;
         res.json(data);
     } catch (error) {
         res.status(500).send(error.toString());

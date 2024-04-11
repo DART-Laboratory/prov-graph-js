@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchButton = document.querySelector('#searchButton');
     const textBox = document.querySelector('#inputField');
     const checkbox = document.querySelector('#reverseCheckbox');
+    const childrenAmountInput = document.querySelector('#NumberChildren')
     let dataForTree = {}
 
     async function performSearch(input) {
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
     searchButton.addEventListener('click', function() {
         const inputValue = textBox.value;
         performSearch(inputValue).then(edge => {
+            console.log(edge)
             let source = edge["_source"];
             let data = {
                 "name": source["process_path"],
@@ -94,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d) {
+        let numChildrenToGet =  childrenAmountInput.value;
         if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;
@@ -101,14 +104,14 @@ document.addEventListener('DOMContentLoaded', function () {
             d.data.children = d.data._children || [];            
             d.data._children = null;
             if (!d.data.children.length || d.data.children.length === 1) { // Only fetch if there are no children loaded yet
-                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid);
+                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid, numChildrenToGet);
                 let childrenToAdd = [];
                 let numChildren = childrenData.length
                 let existingChild = d.data.children.length ===1
-                if(numChildren === 10 && existingChild){
+                if(numChildren === numChildrenToGet && existingChild){
                     numChildren -=1
                 }
-                for (let i=0; i<numChildren; i++) {
+                for (let i=0; i <numChildren; i++) {
                     let child = childrenData[i]                    
                     let childSource = child["_source"];
                     childrenToAdd.push({
@@ -129,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 if(existingChild){
                     let oldChild = d.data.children[0]
-                    childrenToAdd.splice(4,0,oldChild)
+                    childrenToAdd.splice(Math.floor(childrenToAdd.length/2),0,oldChild)
                 }
                 d.data.children = childrenToAdd
             }

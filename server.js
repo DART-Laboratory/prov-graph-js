@@ -123,7 +123,7 @@ app.get('/searchprocesspid', async (req, res) => {
 // Query to search for the child process of the current process using the current process' guid
 app.get('/search_child_process_by_guid', async (req, res) => {
     try {
-        const { guid, pid } = req.query;
+        const { guid, pid, size } = req.query;
         const executedQuery = {
             index: dbConfig.name,
             body: {
@@ -143,7 +143,7 @@ app.get('/search_child_process_by_guid', async (req, res) => {
                         ]
                     }
                 },
-                size: 10
+                size: size
             }
         };
         var response = await client.search(executedQuery);

@@ -94,19 +94,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d) {
-        console.log(d)
         if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;
         } else {
             d.data.children = d.data._children || [];            
             d.data._children = null;
-            if (!d.data.children.length) { // Only fetch if there are no children loaded yet
-                // console.log("child guid: "+ d.data.childproc_guid);
+            if (!d.data.children.length || d.data.children.length === 1) { // Only fetch if there are no children loaded yet
                 let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid);
-                // console.log(childrenData)
-                let childrenToAdd = [];                
-                for (let i=0; i<childrenData.length; i++) {
+                let childrenToAdd = [];
+                let numChildren = childrenData.length
+                let existingChild = d.data.children.length ===1
+                if(numChildren === 10 && existingChild){
+                    numChildren -=1
+                }
+                for (let i=0; i<numChildren; i++) {
                     let child = childrenData[i]                    
                     let childSource = child["_source"];
                     childrenToAdd.push({
@@ -124,6 +126,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         parent: ""
                     });
                     console.log("Childrentoadd arr: "+ childrenToAdd[0]);
+                }
+                if(existingChild){
+                    let oldChild = d.data.children[0]
+                    childrenToAdd.splice(4,0,oldChild)
                 }
                 d.data.children = childrenToAdd
             }

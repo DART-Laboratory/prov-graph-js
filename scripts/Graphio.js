@@ -100,11 +100,12 @@ export function searchProcessPID(pid) {
     catch(error => console.error('Error:', error));
 }
 
-export async function searchChildProcess(guid, pid) {
+export async function searchChildProcess(guid, pid, size) {
     try {
         const queryParams = new URLSearchParams({
             guid: encodeURIComponent(guid),
-            pid: encodeURIComponent(pid)            
+            pid: encodeURIComponent(pid),            
+            size: encodeURIComponent(size)
         }).toString();
 
         const url = `http://localhost:${PORT}/search_child_process_by_guid?${queryParams}`;

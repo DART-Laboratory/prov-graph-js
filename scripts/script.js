@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d) {
-            let numChildrenToGet =  parseInt(childrenAmountInput.value);
+        let numChildrenToGet =  parseInt(childrenAmountInput.value);
         if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;
@@ -104,15 +104,20 @@ document.addEventListener('DOMContentLoaded', function () {
             d.data.children = d.data._children || [];            
             d.data._children = null;
             if (!d.data.children.length || d.data.children.length === 1) { // Only fetch if there are no children loaded yet
-                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid, numChildrenToGet);
-                let childrenToAdd = [];
-                let numChildren = childrenData.length
-                let existingChild = d.data.children.length ===1
-                if(numChildren === numChildrenToGet && existingChild){
-                    numChildren -=1
+                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid, 10000);
+                let existsSet = new Set()
+                let uniqueChildren = []
+                for(let i = 0; i<childrenData.length; i++){
+                    let uniqueId = childrenData[i]["_source"]["process_path"]+childrenData[i]["_source"]["process_pid"]
+                    if(!existsSet.has(uniqueId)){
+                        existsSet.add(uniqueId)
+                        uniqueChildren.push(childrenData[i])
+                    }
                 }
-                for (let i=0; i <numChildren; i++) {
-                    let child = childrenData[i]                    
+                let childrenToAdd = [];
+                let numUniqueChildren = uniqueChildren.length
+                for (let i=0; i <Math.min(numUniqueChildren, numChildrenToGet); i++) {
+                    let child = uniqueChildren[i]
                     let childSource = child["_source"];
                     childrenToAdd.push({
                         name: childSource["process_path"],
@@ -126,14 +131,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         type: childSource["action"],
                         children: [],
                         _children: [],
-                        parent: ""
+                        parent: d.data
                     });
-                    console.log("Childrentoadd arr: "+ childrenToAdd[0]);
                 }
-                if(existingChild){
-                    let oldChild = d.data.children[0]
-                    childrenToAdd.splice(Math.floor(childrenToAdd.length/2),0,oldChild)
-                }
+                
                 d.data.children = childrenToAdd
             }
         }        
@@ -228,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function createKey() {
         let keyGroup = canvas.append("g")
-            .attr("transform", "translate(50, 500)"); // Adjust the position as needed
+            .attr("transform", "translate(50, 500)");
         keyGroup.append("rect")
             .attr("x", 0)
             .attr("y", 0)

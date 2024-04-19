@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchButton = document.querySelector('#searchButton');
     const textBox = document.querySelector('#inputField');
     const checkbox = document.querySelector('#reverseCheckbox');
+    const fileCheckBox = document.querySelector('#fileCheckbox');
+    const networkCheckBox = document.querySelector('#networkCheckbox');
     const childrenAmountInput = document.querySelector('#NumberChildren')
     let dataForTree = {}
 
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let source = edge["_source"];
             let data = {
                 "name": source["process_path"],
+                "type": "process", // All things searched must be processes
                 "process_pid": source["process_pid"],
                 "process_guid": source["process_guid"],
                 "parent_guid": source["parent_guid"],
@@ -32,7 +35,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 "parent_path": source["parent_path"],
                 "childproc_guid": source["childproc_guid"],
                 "childproc_pid": source["childproc_pid"],
-                "type": source["action"],
+                "action": source["action"],
+                "filemod_name": source["filemod_name"],
+                "local_ip": source["local_ip"],
                 "children": [],
                 "_children": [],
                 "parent": "",
@@ -95,11 +100,12 @@ document.addEventListener('DOMContentLoaded', function () {
         createKey();
     }
 
-    async function toggleChildren(d) {
-        let numChildrenToGet =  parseInt(childrenAmountInput.value);
-        if (d.data.children || d.data.childproc_guid == null) {//if the node already has children
+    async function toggleChildren(d, file = false, network = false) {
+        console.log(d)
+        let numChildrenToGet =  parseInt(childrenAmountInput.value);        
+        if (d.data.children) {//if the node already has children
             d.data._children = d.data.children;
-            d.data.children = null;
+            d.data.children = null;            
         } else {
             d.data.children = d.data._children || [];            
             d.data._children = null;
@@ -121,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     let childSource = child["_source"];
                     childrenToAdd.push({
                         name: childSource["process_path"],
+                        type: "process",
                         process_pid: childSource["process_pid"],
                         process_guid: childSource["process_guid"],
                         parent_guid: childSource["parent_guid"],
@@ -128,15 +135,34 @@ document.addEventListener('DOMContentLoaded', function () {
                         parent_path: childSource["parent_path"],
                         childproc_guid: childSource["childproc_guid"],
                         childproc_pid: childSource["childproc_pid"],
-                        type: childSource["action"],
+                        action: childSource["action"],
+                        filemod_name: childSource["filemod_name"],
+                        local_ip: childSource["local_ip"],
                         children: [],
                         _children: [],
                         parent: d.data
                     });
                 }
+
+                if (d.data.action.toLowerCase().includes("file") && file)
+                {                    
+                    childrenToAdd.push({
+                        name: d.data.filemod_name,
+                        type: "file",                    
+                        parent: d.data
+                    });
+                }
+                else if (d.data.action.toLowerCase().includes("connection") && network)
+                {                    
+                    childrenToAdd.push({
+                        name: d.data.local_ip,
+                        type: "network",                    
+                        parent: d.data
+                    });
+                }
                 
                 d.data.children = childrenToAdd
-            }
+            }            
         }        
         update(dataForTree);
     }
@@ -184,7 +210,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 parent_path: parentSource["parent_path"],
                 childproc_guid: parentSource["childproc_guid"],
                 childproc_pid: parentSource["childproc_pid"],
-                type: parentSource["action"],
+                action: parentSource["action"],
+                type: "process",
                 children: [],
                 _children: [],
                 parent: ""
@@ -209,13 +236,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function nodeClick(event, d) {
-        const reverse = checkbox.checked
+        var reverse = checkbox.checked
+        var file = fileCheckBox.checked
+        var network = networkCheckBox.checked
+
+        file = file ? true : false;
+        network = network ? true : false;
+
         if(reverse){
             toggleParent(d);
         }else{            
-            toggleChildren(d);
-        }
-
+            toggleChildren(d, file, network);
+        }        
     }
 
     function colorByType(d) {

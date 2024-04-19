@@ -16,3 +16,11 @@ body, html {
     flex-grow: 1;
     display: flex; /* This makes it take the remaining space */
 }
+
+input[type='checkbox'] {
+    margin-right: 10px; 
+}
+
+label {
+    margin-left: 10px;
+}

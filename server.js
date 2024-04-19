@@ -33,95 +33,8 @@ app.get('/search', async (req, res) => {
     }
 });
 
-app.get('/searchbypid', async (req, res) => {
-    try {
-        const { id } = req.query;
-        const executedQuery = {
-            index: dbConfig.name,
-            body: {
-                query: {
-                    match: {
-                        process_pid: id//'XcLR0ooBBBvBsP_nxiN9'
-                    }
-                }
-            }
-        };
-        var response = await client.search(executedQuery);
-        const data = response.hits.hits;        
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.toString());
-    }
-});
-
-app.get('/searchparent', async (req, res) => {
-    try {
-        const { id } = req.query;
-        const executedQuery = {
-            index: dbConfig.name,
-            body: {
-                query: {
-                    match: {
-                        parent_guid: id//'XcLR0ooBBBvBsP_nxiN9'
-                    }
-                },
-                size: 100
-            }
-        };
-        var response = await client.search(executedQuery);
-        const data = response.hits.hits;        
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.toString());
-    }
-});
-
-app.get('/searchparentbypid', async (req, res) => {
-    try {
-        const { id } = req.query;
-        const executedQuery = {
-            index: dbConfig.name,
-            body: {
-                query: {
-                    match: {
-                        parent_pid: id//'XcLR0ooBBBvBsP_nxiN9'
-                    }
-                },
-                size: 100
-            }
-        };
-        var response = await client.search(executedQuery);
-        const data = response.hits.hits;        
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.toString());
-    }
-});
-
-app.get('/searchprocesspid', async (req, res) => {
-    try {
-        const { id } = req.query;
-        const executedQuery = {
-            index: dbConfig.name,
-            body: {
-                query: {
-                    match: {
-                        process_pid: id//'XcLR0ooBBBvBsP_nxiN9'
-                    }
-                },
-                size: 100
-            }
-        };
-        var response = await client.search(executedQuery);
-        const data = response.hits.hits;        
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.toString());
-    }
-});
-
 // Query to search for the child process of the current process using the current process' guid
-app.get('/search_child_process_by_guid', async (req, res) => {
+app.get('/search_child_process', async (req, res) => {
     try {
         const { guid, pid, size } = req.query;
         const executedQuery = {
@@ -155,7 +68,7 @@ app.get('/search_child_process_by_guid', async (req, res) => {
 });
 
 // Query to search for the parent process of the current process using the current process' parent_guid
-app.get('/search_parent_process_by_guid', async (req, res) => {
+app.get('/search_parent_process', async (req, res) => {
     try {
         const { guid, pid, path, child_guid} = req.query;
         const executedQuery = {

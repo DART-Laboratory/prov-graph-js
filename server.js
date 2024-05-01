@@ -19,7 +19,7 @@ app.get('/search', async (req, res) => {
             index: dbConfig.name,
             body: {
                 query: {
-                    match: {
+                    term: {
                         _id: id//'XcLR0ooBBBvBsP_nxiN9' "HcLR0ooBBBvBsP_nxiNu"
                     }
                 }
@@ -36,7 +36,7 @@ app.get('/search', async (req, res) => {
 // Query to search for the child process of the current process using the current process' guid
 app.get('/search_child_process', async (req, res) => {
     try {
-        const { guid, pid, size } = req.query;
+        const { guid, pid, parent_pid, size } = req.query;
         const executedQuery = {
             index: dbConfig.name,
             body: {
@@ -51,6 +51,11 @@ app.get('/search_child_process', async (req, res) => {
                             {
                                 match: {
                                     process_pid: pid
+                                }
+                            },
+                            {
+                                match: {
+                                    parent_pid: parent_pid
                                 }
                             }
                         ]

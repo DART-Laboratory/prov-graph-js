@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return await search(input);
     }
 
-    async function performsSearchChildProcess(guid, pid, numChildren) {
-        return await searchChildProcess(guid, pid, numChildren);
+    async function performsSearchChildProcess(guid, pid, parent_pid, numChildren) {
+        return await searchChildProcess(guid, pid, parent_pid, numChildren);
     }
     async function performsSearchParentProcess(guid, pid, path, child_guid) {
         return await searchParentProcess(guid, pid, path, child_guid);
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 "childproc_pid": source["childproc_pid"],
                 "action": source["action"],
                 "filemod_name": source["filemod_name"],
-                "local_ip": source["local_ip"],
+                "remote_ip": source["remote_ip"],
                 "children": [],
                 "_children": [],
                 "parent": "",
@@ -101,8 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function toggleChildren(d, file = false, network = false) {
-        console.log(d)
-        let numChildrenToGet =  parseInt(childrenAmountInput.value);        
+        console.log(d)           
         if (d.data.children) {//if the node already has children
             d.data._children = d.data.children;
             d.data.children = null;            
@@ -110,23 +109,43 @@ document.addEventListener('DOMContentLoaded', function () {
             d.data.children = d.data._children || [];            
             d.data._children = null;
             if (!d.data.children.length || d.data.children.length === 1) { // Only fetch if there are no children loaded yet
-                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid, 10000);
-                let existsSet = new Set()
-                let uniqueChildren = []
-                for(let i = 0; i<childrenData.length; i++){
-                    let uniqueId = childrenData[i]["_source"]["process_path"]+childrenData[i]["_source"]["process_pid"]
-                    if(!existsSet.has(uniqueId)){
-                        existsSet.add(uniqueId)
-                        uniqueChildren.push(childrenData[i])
+                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid, d.data.process_pid, 10000);
+                var uniqueChildren = {}
+
+                for(let i = 0; i<childrenData.length; i++){                    
+                    let uniqueId = childrenData[i]["_source"]["process_path"]+childrenData[i]["_source"]["process_pid"]//+childrenData[i]["_source"]["childproc_guid"]
+                    if (!(uniqueId in uniqueChildren))
+                    {
+                        childrenData[i]["_source"]["filemod_name"] = !childrenData[i]["_source"]["filemod_name"] ? [] : [childrenData[i]["_source"]["filemod_name"]];
+                        childrenData[i]["_source"]["remote_ip"] = !childrenData[i]["_source"]["remote_ip"] ? [] : [childrenData[i]["_source"]["remote_ip"]];
+
+                        uniqueChildren[uniqueId] = childrenData[i]                                                
                     }
-                }
-                let childrenToAdd = [];
-                let numUniqueChildren = uniqueChildren.length
-                for (let i=0; i <Math.min(numUniqueChildren, numChildrenToGet); i++) {
-                    let child = uniqueChildren[i]
+                    else {
+                        if (childrenData[i]["_source"]["remote_ip"] && !uniqueChildren[uniqueId]["_source"]["remote_ip"].includes(childrenData[i]["_source"]["remote_ip"]))
+                        {
+                            uniqueChildren[uniqueId]["_source"]["remote_ip"].push(childrenData[i]["_source"]["remote_ip"])                            
+                        }
+
+                        if (childrenData[i]["_source"]["filemod_name"] && !uniqueChildren[uniqueId]["_source"]["filemod_name"].includes(childrenData[i]["_source"]["filemod_name"]))
+                        {
+                            uniqueChildren[uniqueId]["_source"]["filemod_name"].push(childrenData[i]["_source"]["filemod_name"])                            
+                        }
+                    }
+                    // else if (childrenData[i]["_source"]["childproc_guid"] && !uniqueChildren2[uniqueId]["_source"]["childproc_guid"].includes(childrenData[i]["_source"]["childproc_guid"]))
+                    // {
+                    //     uniqueChildren2[uniqueId]["_source"]["childproc_guid"].push(childrenData[i]["_source"]["childproc_guid"])
+                    //     console.log("NOT NULL")
+                    // }
+                }                
+                let childrenToAdd = [];                
+                
+                Object.keys(uniqueChildren).forEach(function(key) {                    
+                    let child = uniqueChildren[key]
                     let childSource = child["_source"];
                     childrenToAdd.push({
                         name: childSource["process_path"],
+                        // name: child["_id"],
                         type: "process",
                         process_pid: childSource["process_pid"],
                         process_guid: childSource["process_guid"],
@@ -137,27 +156,33 @@ document.addEventListener('DOMContentLoaded', function () {
                         childproc_pid: childSource["childproc_pid"],
                         action: childSource["action"],
                         filemod_name: childSource["filemod_name"],
-                        local_ip: childSource["local_ip"],
+                        remote_ip: childSource["remote_ip"],
                         children: [],
                         _children: [],
                         parent: d.data
                     });
-                }
+                });
 
-                if (d.data.action.toLowerCase().includes("file") && file)
+
+                if (d.data.filemod_name && d.data.filemod_name.length > 0 && file)
                 {                    
-                    childrenToAdd.push({
-                        name: d.data.filemod_name,
-                        type: "file",                    
-                        parent: d.data
+                    d.data.filemod_name.forEach(function(filemod) {
+                        childrenToAdd.push({
+                            name: filemod,
+                            type: "file",
+                            parent: d.data
+                        });
                     });
                 }
-                else if (d.data.action.toLowerCase().includes("connection") && network)
+
+                if (d.data.remote_ip && d.data.remote_ip.length > 0 && network)
                 {                    
-                    childrenToAdd.push({
-                        name: d.data.local_ip,
-                        type: "network",                    
-                        parent: d.data
+                    d.data.remote_ip.forEach(function(ip) {
+                        childrenToAdd.push({
+                            name: ip,
+                            type: "network",                    
+                            parent: d.data
+                        });
                     });
                 }
                 

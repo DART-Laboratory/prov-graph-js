@@ -17,11 +17,12 @@ export function search(id) {
         });
 }
 
-export async function searchChildProcess(guid, pid, size) {
+export async function searchChildProcess(guid, pid, parent_pid, size) {
     try {
         const queryParams = new URLSearchParams({
             guid: encodeURIComponent(guid),
-            pid: encodeURIComponent(pid),            
+            pid: encodeURIComponent(pid),    
+            parent_pid: encodeURIComponent(parent_pid),            
             size: encodeURIComponent(size)
         }).toString();
 

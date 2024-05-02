@@ -33,20 +33,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 "parent_guid": source["parent_guid"],
                 "parent_pid": source["parent_pid"],
                 "parent_path": source["parent_path"],
-                "childproc_guid": source["childproc_guid"],
-                "childproc_pid": source["childproc_pid"],
+                "children_info": source["childproc_guid"] ? [[source["childproc_guid"], source["childproc_pid"]]] : [],                
                 "action": source["action"],
-                "filemod_name": source["filemod_name"],
-                "remote_ip": source["remote_ip"],
+                "filemod_name": source["filemod_name"] ? source["filemod_name"] : [],
+                "remote_ip": source["remote_ip"] ? source["remote_ip"] : [],
                 "children": [],
                 "_children": [],
                 "parent": "",
             };
-            // console.log(data);
-            // console.log(data.parent_guid);
+
             toggleParent(data, false)
-            // dataForTree = data
-            // update(dataForTree);
         });
     });
 
@@ -108,16 +104,30 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             d.data.children = d.data._children || [];            
             d.data._children = null;
-            if (!d.data.children.length || d.data.children.length === 1) { // Only fetch if there are no children loaded yet
-                let childrenData = await performsSearchChildProcess(d.data.childproc_guid, d.data.childproc_pid, d.data.process_pid, 10000);
+            let childrenToAdd = [];     
+            if (d.data.children.length <= 1 && d.data.children_info && d.data.children_info.length > 0) { // Only fetch if there are no children loaded yet                
+                
+                let childrenData = [];
+                let searchPromises = [];
+
+                for (let i = 0; i < d.data.children_info.length; i++) {
+                    let childInfo = d.data.children_info[i];
+                    searchPromises.push(performsSearchChildProcess(childInfo[0], childInfo[1], d.data.process_pid, 10000));
+                }
+
+                const results = await Promise.all(searchPromises);
+                childrenData = results.flat();
+
+                console.log(childrenData)
                 var uniqueChildren = {}
 
                 for(let i = 0; i<childrenData.length; i++){                    
-                    let uniqueId = childrenData[i]["_source"]["process_path"]+childrenData[i]["_source"]["process_pid"]//+childrenData[i]["_source"]["childproc_guid"]
+                    let uniqueId = childrenData[i]["_source"]["process_path"]+childrenData[i]["_source"]["process_pid"]
                     if (!(uniqueId in uniqueChildren))
                     {
                         childrenData[i]["_source"]["filemod_name"] = !childrenData[i]["_source"]["filemod_name"] ? [] : [childrenData[i]["_source"]["filemod_name"]];
                         childrenData[i]["_source"]["remote_ip"] = !childrenData[i]["_source"]["remote_ip"] ? [] : [childrenData[i]["_source"]["remote_ip"]];
+                        childrenData[i]["_source"]["children_info"] = !childrenData[i]["_source"]["childproc_guid"] ? [] : [[childrenData[i]["_source"]["childproc_guid"], childrenData[i]["_source"]["childproc_pid"]]];
 
                         uniqueChildren[uniqueId] = childrenData[i]                                                
                     }
@@ -131,14 +141,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         {
                             uniqueChildren[uniqueId]["_source"]["filemod_name"].push(childrenData[i]["_source"]["filemod_name"])                            
                         }
+
+                        if (childrenData[i]["_source"]["childproc_guid"] && !uniqueChildren[uniqueId]["_source"]["children_info"].includes([childrenData[i]["_source"]["childproc_guid"], childrenData[i]["_source"]["childproc_pid"]]))
+                        {
+                            uniqueChildren[uniqueId]["_source"]["children_info"].push([childrenData[i]["_source"]["childproc_guid"], childrenData[i]["_source"]["childproc_pid"]])
+                            console.log("NOT NULL")
+                        }
                     }
-                    // else if (childrenData[i]["_source"]["childproc_guid"] && !uniqueChildren2[uniqueId]["_source"]["childproc_guid"].includes(childrenData[i]["_source"]["childproc_guid"]))
-                    // {
-                    //     uniqueChildren2[uniqueId]["_source"]["childproc_guid"].push(childrenData[i]["_source"]["childproc_guid"])
-                    //     console.log("NOT NULL")
-                    // }
-                }                
-                let childrenToAdd = [];                
+                }                                           
                 
                 Object.keys(uniqueChildren).forEach(function(key) {                    
                     let child = uniqueChildren[key]
@@ -152,8 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         parent_guid: childSource["parent_guid"],
                         parent_pid: childSource["parent_pid"],
                         parent_path: childSource["parent_path"],
-                        childproc_guid: childSource["childproc_guid"],
-                        childproc_pid: childSource["childproc_pid"],
+                        children_info: childSource["children_info"],                        
                         action: childSource["action"],
                         filemod_name: childSource["filemod_name"],
                         remote_ip: childSource["remote_ip"],
@@ -161,33 +170,31 @@ document.addEventListener('DOMContentLoaded', function () {
                         _children: [],
                         parent: d.data
                     });
+                });                
+            } 
+
+            if (d.data.filemod_name && d.data.filemod_name.length > 0 && file)
+            {                    
+                d.data.filemod_name.forEach(function(filemod) {
+                    childrenToAdd.push({
+                        name: filemod,
+                        type: "file",
+                        parent: d.data
+                    });
                 });
+            }
 
-
-                if (d.data.filemod_name && d.data.filemod_name.length > 0 && file)
-                {                    
-                    d.data.filemod_name.forEach(function(filemod) {
-                        childrenToAdd.push({
-                            name: filemod,
-                            type: "file",
-                            parent: d.data
-                        });
+            if (d.data.remote_ip && d.data.remote_ip.length > 0 && network)
+            {                    
+                d.data.remote_ip.forEach(function(ip) {
+                    childrenToAdd.push({
+                        name: ip,
+                        type: "network",                    
+                        parent: d.data
                     });
-                }
-
-                if (d.data.remote_ip && d.data.remote_ip.length > 0 && network)
-                {                    
-                    d.data.remote_ip.forEach(function(ip) {
-                        childrenToAdd.push({
-                            name: ip,
-                            type: "network",                    
-                            parent: d.data
-                        });
-                    });
-                }
-                
-                d.data.children = childrenToAdd
-            }            
+                });
+            }
+            d.data.children = childrenToAdd         
         }        
         update(dataForTree);
     }
@@ -215,26 +222,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // First, check if the node is the root or treated as such in the visualization
         if (!parent || d === dataForTree) {
-            // console.log(d);
-            // console.log("PROCESS_GUID " + d.data.process_guid);
-            // console.log("PARENT_GUID " + d.data.parent_guid);
-            // console.log("PARENT_PID " + d.data.parent_pid);
-            // console.log("PARENT_PATH " + d.data.parent_path);
-            // console.log("PROCESS_PID " + d.data.process_pid);
 
             let parentData = await performsSearchParentProcess(parent_guid, parent_pid, parent_path, process_guid)                 
             let parentSource = parentData[0]["_source"];            
             
             parentNode = {
-                name: parentSource["process_path"], 
-                // name: parentData[0]["_id"],
+                name: parentSource["process_path"],                 
                 process_pid: parentSource["process_pid"],
                 process_guid: parentSource["process_guid"],
                 parent_guid: parentSource["parent_guid"],
                 parent_pid: parentSource["parent_pid"],
                 parent_path: parentSource["parent_path"],
-                childproc_guid: parentSource["childproc_guid"],
-                childproc_pid: parentSource["childproc_pid"],
+                children_info: parentSource["childproc_guid"] ? [[parentSource["childproc_guid"], parentSource["childproc_pid"]]] : [], 
                 action: parentSource["action"],
                 type: "process",
                 children: [],

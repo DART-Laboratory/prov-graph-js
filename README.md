@@ -15,21 +15,32 @@ Before you begin, ensure you have the following installed on your system:
     git clone https://github.com/your-username/your-repository.git
     ```
 
-2. Navigate to the project directory:
+2. Check and make sure that your working directory ends in `/prov-graph-js` (if not, use `cd` and `ls`):
 
     ```sh
-    cd your-repository
+    pwd
     ```
+    ![Working Directory](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/648da3cf-eb6f-4791-ab85-f97dcd979ffc)
 
 3. Install the project dependencies:
 
     ```sh
     npm install
     ```
+    or
+    ```sh
+    npm i
+    ```
+    ![Dependencies Installed](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/c9801624-183f-4e51-b6ac-e4e633d8a5fb)
+
+    This should create a **node_modules** folder.
 
 ## Running the Server
 
-1. Start the server:
+1. Connect to the VPN:
+    ![VPN Connection](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/734d1b23-db16-444b-bcac-d2eb2a8fb15f)
+
+2. Start the server:
 
     ```sh
     node server.js
@@ -40,6 +51,7 @@ Before you begin, ensure you have the following installed on your system:
     ```sh
     running on port xxxx
     ```
+    ![Server Running](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/e20ebda9-ad4a-4934-bb8d-a48e9603dfeb)
 
 ## Launching the Project
 
@@ -49,7 +61,34 @@ Before you begin, ensure you have the following installed on your system:
 
     or
 
-    - Use the command palette (Ctrl+Shift+P) and type `Live Server: Open with Live Server`.
+    - Use the command palette (`Ctrl+Shift+P`) and type `Live Server: Open with Live Server`.
+    ![Open with Live Server](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/ded38838-96ae-462c-9695-d6a1f22d7906)
+    ![Live Server Output](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/a4eec1de-7f20-44a9-a6a0-27e4d93ec725)
+
+## Using the Project
+
+### Search
+
+1. Enter an event ID into the input field (to test, you can use `HcLR0ooBBBvBsP_nxiNu`):
+    ![Enter Event ID](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/cedfc849-c75f-40d1-b265-0991a4706eaa)
+
+2. Click the search button to begin:
+    ![Search Button](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/99b9933a-5a55-41e8-97d7-ff09cc4d59b1)
+    The screen should have two nodes, the node on the right represents the current process, and the node on the left represents the parent process.
+
+### Explore the Graph
+
+1. Clicking on a leaf node will generate any child processes:
+    ![Child Processes](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/d6057528-584d-4338-b507-d7f2eba6ac64)
+
+2. Clicking on a parent node will minimize the graph:
+    ![Minimize Graph](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/8c61434a-f3a6-4506-a7c8-c9f9b70fa1ca)
+
+3. Selecting the reverse box and clicking on a node will generate the parent process:
+    ![Parent Process](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/b19a7e64-1cf7-46be-9b0e-a4d5eb2dee06)
+
+4. Selecting the file or network box and clicking on a node will generate any child files or networks as well:
+    ![Child Files or Networks](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/e4d4298f-920f-4690-80cc-e4e28548494d)
 
 ## Contributing
 

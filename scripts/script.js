@@ -49,10 +49,14 @@ document.addEventListener('DOMContentLoaded', function () {
     let canvas = d3.select("#svgContainer").append("svg")
         .attr("width", "100%")
         .attr("height", "calc(100% - 40px)")
+        .call(d3.zoom().on("zoom",
+            function (event) {
+                canvas.attr("transform",
+                    event.transform);                
+            }))
         .append("g")
-        .attr("transform", "translate(50, 50)");
 
-    let tree = d3.tree().size([400, 400]);
+    let tree = d3.tree().size([800, 800]);
     let data = {};
 
     function update(rootData) {
@@ -90,8 +94,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         node.append("text")
             .text(function(d){return d.data.name;})
-            .attr("dx", -10)
-            .attr("dy", 20);
+            .attr("dx", 10)
+            .attr("dy", 3)
+            .style("text-anchor","start");
 
         createKey();
     }

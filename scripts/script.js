@@ -52,12 +52,12 @@ document.addEventListener('DOMContentLoaded', function () {
         .call(d3.zoom().on("zoom",
             function (event) {
                 canvas.attr("transform",
-                    event.transform);                
-            }))
+                    event.transform);
+                }))                
         .append("g")
 
-    let tree = d3.tree().size([800, 800])//Increased size for better spacing
-    .nodeSize([50, 200]);
+    let tree = d3.tree().size([1000, 1000])//Increased size for better spacing
+    .nodeSize([150, 300]);
     let data = {};
 
     function update(rootData) {
@@ -65,6 +65,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let root = d3.hierarchy(rootData);
         tree(root);
+
+        let maxLabelLength = 0;
+        root.each(d => {
+            maxLabelLength = Math.max(maxLabelLength,d.data.name.length);
+        });
+
+        let dynamicWidth = Math.min(20 * maxLabelLength, 1000);
+        tree.nodeSize([20, dynamicWidth]);
+
         let nodes = root.descendants();
         let links = root.links();
 
@@ -82,12 +91,14 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("stroke", "#ADADAD")
             .attr("d", linkFunction);
 
+        
+
         let node = canvas.selectAll(".node")
             .data(nodes)
             .enter()
             .append('g')
             .attr("class", "node")
-            .attr("transform", function (d){return "translate("+ d.y + ","+ d.x +")"})
+            .attr("transform", function (d){return "translate("+ (d.y + (d.depth * 5)) + ","+ d.x + ")";})
             .on("click", nodeClick);
 
         node.append("circle")
@@ -95,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("fill", colorByType);
 
         node.append("text")
-            .text(function(d){return d.data.name;})
+            .text(function(d){return ( d.data.name);})
             .attr("dx", 12)
             .attr("dy", 5)
             .style("font-size","12px")
@@ -272,8 +283,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var file = fileCheckBox.checked
         var network = networkCheckBox.checked
 
-        file = file ? true : false;
-        network = network ? true : false;
+        // file = file ? true : false;
+        // network = network ? true : false;
 
         if(reverse){
             toggleParent(d);

@@ -52,11 +52,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .call(d3.zoom().on("zoom",
             function (event) {
                 canvas.attr("transform",
-                    event.transform);                
-            }))
+                    event.transform);
+                }))                
         .append("g")
 
-    let tree = d3.tree().size([800, 800])//Increased size for better spacing
+    let tree = d3.tree().size([1000, 1000])//Increased size for better spacing
     .nodeSize([50, 200]);
     let data = {};
 

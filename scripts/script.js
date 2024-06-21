@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 canvas.attr("transform",
                     event.transform);
                 }))                
+                  
         .append("g")
 
     let tree = d3.tree().size([1000, 1000])//Increased size for better spacing
@@ -89,9 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("class", "link")
             .attr("fill", "none")
             .attr("stroke", "#ADADAD")
-            .attr("d", linkFunction);
-
-        
+            .attr("d", linkFunction);    
 
         let node = canvas.selectAll(".node")
             .data(nodes)
@@ -283,8 +282,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var file = fileCheckBox.checked
         var network = networkCheckBox.checked
 
-        // file = file ? true : false;
-        // network = network ? true : false;
+        file = file ? true : false;
+        network = network ? true : false;
 
         if(reverse){
             toggleParent(d);
@@ -341,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .attr("y", 15)
             .text("File");
     }
+    
 
     update(data); // Initial drawing of the tree
 });

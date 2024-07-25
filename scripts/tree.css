@@ -12,6 +12,58 @@ body, html {
     align-items: center;
 }
 
+#dialogBox {
+    position: absolute;
+    right: 10px;
+    top: 50px;
+    width: 300px;
+    height: auto; 
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba (0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    overflow-y: auto;
+    resize: both;
+    cursor: move; 
+
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #000;
+    z-index: 1000;
+}
+
+.resize-handle.bottom-right {
+    right: 0;
+    bottom: 0;
+    cursor: nwse-resize;
+}
+
+
+
+.hidden {
+    display: none;
+}
+
+.node-label {
+    display: block;
+    font-size: 12px;
+    text-anchor: start;
+    
+}
+
+.node text.fa {
+    font-size: 20px;
+    text-anchor: middle;
+
+}
+
 #svgContainer {
     flex-grow: 1;
     display: flex; /* This makes it take the remaining space */
@@ -19,8 +71,24 @@ body, html {
 
 input[type='checkbox'] {
     margin-right: 10px; 
+
 }
 
 label {
     margin-left: 10px;
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+

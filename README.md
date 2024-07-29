@@ -69,26 +69,29 @@ Before you begin, ensure you have the following installed on your system:
 
 ### Search
 
-1. Enter an event ID into the input field (to test, you can use `HcLR0ooBBBvBsP_nxiNu`):
-    ![Enter Event ID](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/cedfc849-c75f-40d1-b265-0991a4706eaa)
+1. Enter an event ID and number of layers into the respective input fields (to test, you can use `HcLR0ooBBBvBsP_nxiNu` and '4'):
+    ![Enter Event ID](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/search.png)
 
 2. Click the search button to begin:
-    ![Search Button](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/99b9933a-5a55-41e8-97d7-ff09cc4d59b1)
+    ![Search Button](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/clicksearchtobegin.png)
     The screen should have two nodes, the node on the right represents the current process, and the node on the left represents the parent process.
 
 ### Explore the Graph
 
-1. Clicking on a leaf node will generate any child processes:
-    ![Child Processes](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/d6057528-584d-4338-b507-d7f2eba6ac64)
+1. Clicking on a leaf node will generate any child processes and display a dialog box with the necessary information about that node:
+    ![Child Processes](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/explorethegraph.png)
 
 2. Clicking on a parent node will minimize the graph:
-    ![Minimize Graph](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/8c61434a-f3a6-4506-a7c8-c9f9b70fa1ca)
+    ![Minimize Graph](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/explorethegraph2.png)
 
 3. Selecting the reverse box and clicking on a node will generate the parent process:
-    ![Parent Process](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/b19a7e64-1cf7-46be-9b0e-a4d5eb2dee06)
+    ![Parent Process](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/explorethegraph3.png)
 
 4. Selecting the file or network box and clicking on a node will generate any child files or networks as well:
-    ![Child Files or Networks](https://github.com/DART-Laboratory/prov-graph-js/assets/123529704/e4d4298f-920f-4690-80cc-e4e28548494d)
+    ![Child Files or Networks](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/generateChildProcesses.png)
+
+5. Selecting the Hide File, Hide Process or Hide Network checkboxes will hide all nodes of that nature:
+    ![HideNodes] (https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/HideFile.png)
 
 ## Contributing
 

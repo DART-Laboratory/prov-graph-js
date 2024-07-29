@@ -90,7 +90,7 @@ Before you begin, ensure you have the following installed on your system:
 4. Selecting the file or network box and clicking on a node will generate any child files or networks as well:
     ![Child Files or Networks](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/generateChildProcesses.png)
 
-5. Selecting the Hide File, Hide Process or Hide Network checkboxes will hide all nodes of that nature:
+5. Selecting the Hide File, Hide Process or Hide Network checkboxes will hide all nodes of that respective nature:
     ![Hide File Nodes](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/HideFile.png)
 
 ## Contributing

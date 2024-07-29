@@ -91,7 +91,7 @@ Before you begin, ensure you have the following installed on your system:
     ![Child Files or Networks](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/generateChildProcesses.png)
 
 5. Selecting the Hide File, Hide Process or Hide Network checkboxes will hide all nodes of that nature:
-    ![Hide Nodes] (https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/HideFile.png)
+    ![Hide Nodes](https://github.com/DART-Laboratory/prov-graph-js/blob/main/images/HideFile.png)
 
 ## Contributing
 
